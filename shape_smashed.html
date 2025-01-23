@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shape Smashes - GIGGLES LAB ACADEMY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+
+        header {
+            background-color: #6a1b9a;
+            color: white;
+            padding: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin: 20px;
+        }
+
+        .shape-box-container, .shape-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .shape-box {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #6a1b9a;
+            position: relative;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .shape {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #bbb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .circle { border-radius: 50%; background-color: #ff6f61; }
+        .square { background-color: #6cace4; }
+        .rectangle { width: 120px; background-color: #c6e2ff; }
+        .oval { border-radius: 50%; width: 90px; background-color: #ffeb3b; }
+        .star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); background-color: #ffeb3b; }
+
+        .shape-box.correct {
+            background-color: green;
+        }
+
+        .shape-name {
+            position: absolute;
+            bottom: -20px;
+            font-size: 12px;
+            color: #6a1b9a;
+        }
+
+        .message-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: black;
+            color: white;
+            padding: 30px;
+            border-radius: 7px;
+            font-size: 19px;
+            text-align: center;
+        }
+
+        .popup-show {
+            display: block;
+        }
+
+        .reset-btn {
+            background-color: #6a1b9a;
+            color: white;
+            padding: 10px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .shape.selected {
+            background-color: grey;
+        }
+
+        .shape.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Shape Smashes</h1>
+</header>
+
+<div class="game-container" id="gameContainer">
+    <div class="shape-box-container" id="shapeBoxContainer"></div>
+    <div class="shape-container" id="shapeContainer"></div>
+</div>
+
+<div class="message-popup" id="messagePopup">You got it, my boy!</div>
+<div class="message-popup" id="incorrectPopup">Incorrect! Wrong Shape. Try again!</div>
+
+<button class="reset-btn" id="resetBtn" onclick="resetGame()">Reset Game</button>
+
+<script>
+    // Shape data
+    const shapes = [
+        { name: "Circle", class: "circle" },
+        { name: "Square", class: "square" },
+        { name: "Rectangle", class: "rectangle" },
+        { name: "Oval", class: "oval" },
+        { name: "Star", class: "star" }
+    ];
+
+    // Game Variables
+    let correctShapesCount = 0;
+    let randomShapes = [];
+    let selectedShape = null;
+
+    // Shuffle the shapes for randomness
+    function shuffleShapes() {
+        randomShapes = [...shapes].sort(() => Math.random() - 0.5);
+    }
+
+    // Create shape boxes
+    function createShapeBoxes() {
+        const shapeBoxContainer = document.getElementById("shapeBoxContainer");
+        shapeBoxContainer.innerHTML = "";
+        randomShapes.forEach((shape) => {
+            const box = document.createElement("div");
+            box.classList.add("shape-box");
+            box.setAttribute("data-shape", shape.name);
+            box.innerHTML = `<div class="shape-name">${shape.name}</div>`;
+            box.addEventListener("click", () => handleBoxClick(box));
+            shapeBoxContainer.appendChild(box);
+        });
+    }
+
+    // Create clickable shapes
+    function createShapes() {
+        const shapeContainer = document.getElementById("shapeContainer");
+        shapeContainer.innerHTML = "";
+        shapes.forEach((shape) => {
+            const shapeDiv = document.createElement("div");
+            shapeDiv.classList.add("shape", shape.class);
+            shapeDiv.setAttribute("data-name", shape.name);
+            shapeDiv.addEventListener("click", () => selectShape(shape));
+            shapeContainer.appendChild(shapeDiv);
+        });
+    }
+
+    // Select a shape
+    function selectShape(shape) {
+        selectedShape = shape;
+        document.querySelectorAll(".shape").forEach((shapeDiv) => {
+            shapeDiv.classList.remove("selected");
+        });
+        const selectedShapeDiv = document.querySelector(`[data-name="${shape.name}"]`);
+        selectedShapeDiv.classList.add("selected");
+    }
+
+    // Handle box click
+    function handleBoxClick(box) {
+        const boxShapeName = box.getAttribute("data-shape");
+
+        if (selectedShape && selectedShape.name === boxShapeName && !box.classList.contains("correct")) {
+            box.classList.add("correct");
+            box.innerHTML = `<div class="shape ${selectedShape.class}"></div>`;
+            correctShapesCount++;
+            removeShape(selectedShape.name);
+            selectedShape = null;
+
+            // Check for game completion
+            if (correctShapesCount === randomShapes.length) {
+                setTimeout(() => showPopup("messagePopup"), 500);
+            }
+        } else if (selectedShape) {
+            showPopup("incorrectPopup");
+        }
+    }
+
+    // Remove shape from available list
+    function removeShape(shapeName) {
+        const shapeDiv = document.querySelector(`[data-name="${shapeName}"]`);
+        shapeDiv.classList.add("hidden");
+    }
+
+    // Show popup message
+    function showPopup(popupId) {
+        document.getElementById(popupId).classList.add("popup-show");
+        if (popupId === "messagePopup") {
+            setTimeout(resetGame, 3000); // Reset the game after showing success popup
+        }
+    }
+
+    // Hide popup message
+    function hidePopup(popupId) {
+        document.getElementById(popupId).classList.remove("popup-show");
+    }
+
+    // Reset the game
+    function resetGame() {
+        correctShapesCount = 0;
+        selectedShape = null;
+        shuffleShapes();
+        createShapeBoxes();
+        createShapes();
+        hidePopup("messagePopup");
+        hidePopup("incorrectPopup");
+    }
+
+    // Initialize the game
+    shuffleShapes();
+    createShapeBoxes();
+    createShapes();
+</script>
+
+</body>
+</html>

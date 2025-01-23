@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Spellings Quiz - GIGGLES LAB ACADEMY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #6a1b9a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .boxes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .box {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #7b1fa2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .box input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 20px;
+            text-transform: uppercase;
+            background-color: transparent;
+        }
+
+        .cut-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-gap: 5px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .keyboard button {
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background-color: #7b1fa2;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .keyboard button:hover {
+            background-color: #9c4dcc;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .popup.dark-mode {
+            background-color: #1c1c1c;
+            color: #f4f4f9;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #121212;
+            color: #f4f4f9;
+        }
+
+        body.dark-mode header {
+            background-color: #1c1c1c;
+        }
+
+        body.dark-mode .keyboard button {
+            background-color: #333;
+        }
+
+        body.dark-mode .keyboard button:hover {
+            background-color: #555;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Spellings Quiz - GIGGLES LAB ACADEMY</h1>
+    </header>
+
+    <div class="quiz-container">
+        <div class="boxes" id="animalBoxes"></div>
+
+        <div class="keyboard" id="keyboard"></div>
+
+        <div class="popup" id="popupMessage"></div>
+    </div>
+
+    <script>
+        const animals = ['gorilla', 'panda', 'chimpanzee', 'koala', 'dog', 'lion', 'tiger', 'rabbit', 'deer', 'bear', 'raccoon', 'monkey', 'zebra', 'buffalo', 'leopard', 'wolf', 'cow'];
+        let selectedAnimal = animals[Math.floor(Math.random() * animals.length)];
+        let enteredLetters = [];
+        let animalNameInputs = [];
+
+        function createKeyboard() {
+            const keyboardContainer = document.getElementById('keyboard');
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            alphabet.forEach(letter => {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.onclick = () => handleLetterClick(letter);
+                keyboardContainer.appendChild(button);
+            });
+        }
+
+        function displayAnimalBoxes() {
+            const animalBoxes = document.getElementById('animalBoxes');
+            animalBoxes.innerHTML = ''; // Clear previous boxes
+            enteredLetters = []; // Reset entered letters
+
+            // Create boxes according to the selected animal's name length
+            for (let i = 0; i < selectedAnimal.length; i++) {
+                const box = document.createElement('div');
+                box.classList.add('box');
+                const input = document.createElement('input');
+                input.setAttribute('maxlength', '1');
+                input.setAttribute('disabled', true);
+                box.appendChild(input);
+
+                const cutBtn = document.createElement('button');
+                cutBtn.textContent = 'X';
+                cutBtn.classList.add('cut-btn');
+                cutBtn.onclick = () => removeLetter(i);
+                box.appendChild(cutBtn);
+
+                animalBoxes.appendChild(box);
+                animalNameInputs.push(input); // Store the input elements for later reference
+            }
+        }
+
+        function handleLetterClick(letter) {
+            // Insert the letter into the first available empty box
+            if (enteredLetters.length < selectedAnimal.length) {
+                const emptyBoxIndex = enteredLetters.length;
+                enteredLetters.push(letter.toLowerCase());
+                animalNameInputs[emptyBoxIndex].value = letter;
+
+                if (enteredLetters.length === selectedAnimal.length && enteredLetters.join('') === selectedAnimal) {
+                    showPopup('Congrats! You guessed the animal name!');
+                }
+            }
+        }
+
+        function removeLetter(index) {
+            // Remove the letter from the box and update entered letters array
+            enteredLetters = enteredLetters.filter((_, i) => i !== index);
+            animalNameInputs[index].value = '';
+        }
+
+        function showPopup(message) {
+            const popup = document.getElementById('popupMessage');
+            popup.textContent = message;
+            popup.style.display = 'block';
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+                resetQuiz();
+            }, 2000);
+        }
+
+        function resetQuiz() {
+            selectedAnimal = animals[Math.floor(Math.random() * animals.length)];
+            enteredLetters = [];
+            animalNameInputs = [];
+            displayAnimalBoxes();
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const darkModeEnabled = document.body.classList.contains('dark-mode');
+            if (darkModeEnabled) {
+                document.body.classList.remove('dark-mode');
+                document.querySelector('.popup').classList.remove('dark-mode');
+            } else {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.popup').classList.add('dark-mode');
+            }
+        }
+
+        createKeyboard();
+        displayAnimalBoxes();
+    </script>
+
+</body>
+</html>

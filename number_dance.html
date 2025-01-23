@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Number Dance Quiz - GIGGLES LAB ACADEMY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+
+        header {
+            background-color: #6a1b9a;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+        }
+
+        .quiz-container {
+            margin: 50px auto;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .equation {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 10px 20px;
+            background-color: #6cace4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: #497ba9;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 20px;
+            display: none;
+        }
+
+        .message.correct {
+            color: green;
+        }
+
+        .message.incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Number Dance Quiz - GIGGLES LAB ACADEMY
+    </header>
+
+    <div class="quiz-container">
+        <div class="equation" id="equation">5 + 3</div>
+        <div class="options">
+            <button class="option" onclick="checkAnswer(this)" id="option1">Option 1</button>
+            <button class="option" onclick="checkAnswer(this)" id="option2">Option 2</button>
+            <button class="option" onclick="checkAnswer(this)" id="option3">Option 3</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        let correctAnswer;
+
+        // Generate random numbers and operator
+        function generateQuiz() {
+            const num1 = Math.floor(Math.random() * 10) + 1; // Random number 1-10
+            const num2 = Math.floor(Math.random() * 10) + 1; // Random number 1-10
+            const operator = Math.random() > 0.5 ? '+' : '-'; // Random operator + or -
+
+            // Calculate the correct answer based on the operator
+            correctAnswer = operator === '+' ? num1 + num2 : num1 - num2;
+
+            // Update the equation text
+            document.getElementById("equation").innerText = `${num1} ${operator} ${num2}`;
+
+            // Generate options
+            generateOptions(correctAnswer);
+        }
+
+        // Generate three options (1 correct + 2 wrong)
+        function generateOptions(correct) {
+            const options = [correct];
+
+            // Generate two unique wrong answers
+            while (options.length < 3) {
+                const wrongAnswer = Math.floor(Math.random() * 10) + 1; // Random number 1-10
+                if (!options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+
+            // Shuffle the options
+            options.sort(() => Math.random() - 0.5);
+
+            // Assign options to buttons
+            document.getElementById("option1").innerText = options[0];
+            document.getElementById("option1").setAttribute("data-value", options[0]);
+
+            document.getElementById("option2").innerText = options[1];
+            document.getElementById("option2").setAttribute("data-value", options[1]);
+
+            document.getElementById("option3").innerText = options[2];
+            document.getElementById("option3").setAttribute("data-value", options[2]);
+        }
+
+        // Check if the selected answer is correct
+        function checkAnswer(button) {
+            const selectedValue = parseInt(button.getAttribute("data-value"));
+            const message = document.getElementById("message");
+
+            if (selectedValue === correctAnswer) {
+                message.innerText = "Correct! Well done!";
+                message.className = "message correct";
+            } else {
+                message.innerText = "Incorrect! Try again.";
+                message.className = "message incorrect";
+            }
+
+            message.style.display = "block";
+
+            // Generate a new quiz after 2 seconds
+            setTimeout(() => {
+                message.style.display = "none";
+                generateQuiz();
+            }, 2000);
+        }
+
+        // Initialize the quiz
+        generateQuiz();
+    </script>
+</body>
+</html>

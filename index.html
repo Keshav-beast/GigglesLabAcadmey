@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GIGGLES LAB ACADEMY</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #6a1b9a; /* Purple background */
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-right: 50px; /* Create space for hamburger */
+            flex-grow: 1; /* Allow header to take full width */
+        }
+
+        /* Hamburger Menu */
+        .ham {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .ham_options {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #6a1b9a;
+            width: 200px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .ham_options a {
+            color: white;
+            text-decoration: none;
+            margin: 10px 0;
+            display: block;
+            padding: 10px;
+            background-color: #7b1fa2;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .ham_options a:hover {
+            background-color: #9c4dcc;
+            transform: scale(1.1);
+        }
+
+        /* Dark Mode Styling */
+        body.dark-mode {
+            background-color: #121212;
+            color: #f4f4f9;
+        }
+
+        body.dark-mode header {
+            background-color: #1c1c1c;
+        }
+
+        body.dark-mode .ham_options {
+            background-color: #1c1c1c;
+        }
+
+        body.dark-mode .ham_options a {
+            background-color: #333;
+        }
+
+        body.dark-mode .ham_options a:hover {
+            background-color: #555;
+        }
+
+        .darkmode {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .darkmode a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Activities Section */
+        .Activites {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .Activites h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .Activites_imgs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .Activites_imgs nav {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .Activites_imgs nav:hover {
+            background-color: #6a1b9a;
+            transform: scale(1.05);
+        }
+
+        .Activites_imgs a {
+            font-size: 18px;
+            font-weight: bold;
+            color: #6a1b9a;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .Activites_imgs a:hover {
+            color: #fff;
+        }
+
+        /* Activity Animation */
+        .Activites_imgs nav:active a {
+            color: #fff;
+            transform: translateY(5px);
+        }
+
+        /* Responsive Styling */
+        @media screen and (max-width: 768px) {
+            .Activites_imgs {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>GIGGLES LAB ACADEMY</h1>
+        <span class="ham" onclick="toggleMenu()">&#9776;</span>
+        <div class="ham_options" id="hamburgerMenu">
+            <div class="darkmode">
+                <a href="#">Dark Mode</a>
+                <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+            </div>
+            <a href="#">Quiz</a>
+            <a href="#">Fun Assistance</a>
+            <a href="#">About Us</a>
+        </div>
+    </header>
+
+    <div class="Activites">
+        <h1>Activity-</h1>
+        <hr>
+        <div class="Activites_imgs">
+            <nav>
+                <a href="spellings_guess.html">Spellings</a>
+            </nav>
+            <nav>
+                <a href="shape_smashed.html">Shapes Smashed</a>
+            </nav>
+            <nav>
+                <a href="number_dance.html">Number Dance</a>
+            </nav>
+            <nav>
+                <a href="knock_knock.html">Knock Knock...</a>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle the hamburger menu
+        function toggleMenu() {
+            const menu = document.getElementById('hamburgerMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Function to toggle dark mode across the website
+        function toggleDarkMode() {
+            const darkModeEnabled = document.getElementById('darkModeToggle').checked;
+            if (darkModeEnabled) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            // Save dark mode preference to localStorage
+            localStorage.setItem('darkMode', darkModeEnabled);
+        }
+
+        // Maintain dark mode state across pages (optional)
+        window.onload = function() {
+            const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+            document.getElementById('darkModeToggle').checked = darkModeEnabled;
+            if (darkModeEnabled) {
+                document.body.classList.add('dark-mode');
+            }
+        };
+    </script>
+
+</body>
+</html>
