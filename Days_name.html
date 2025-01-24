@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Days Quiz</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #e9f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: #333;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .days-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .day {
+      background-color: #4caf50;
+      color: white;
+      padding: 15px 20px;
+      margin: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: calc(33.33% - 20px);
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s, background-color 0.3s;
+    }
+
+    .day:hover {
+      background-color: #45a049;
+      transform: translateY(-5px);
+    }
+
+    .correct {
+      background-color: #8bc34a !important;
+      box-shadow: 0 5px 15px rgba(0, 128, 0, 0.3);
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+      margin: 10px 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-3px);
+    }
+
+    .reset-btn {
+      background-color: #f44336;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .reset-btn:hover {
+      background-color: #d32f2f;
+      transform: rotate(360deg) scale(1.1);
+    }
+
+    @media screen and (max-width: 600px) {
+      .day {
+        width: calc(50% - 20px);
+        font-size: 14px;
+        padding: 10px 15px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Arrange the Days in Correct Order</h1>
+    <div class="days-container" id="days-container" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <!-- Days will be dynamically inserted here -->
+    </div>
+    <button onclick="checkOrder()">Check Order</button>
+    <button class="reset-btn" onclick="resetGame()">↻</button> <!-- Reset button -->
+  </div>
+
+  <script>
+    // Define the correct order of days
+    const correctDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    let shuffledDays = []; // To store the shuffled days
+
+    // Shuffle the days to show in random order
+    function shuffleDays(days) {
+      for (let i = days.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [days[i], days[j]] = [days[j], days[i]]; // Swap elements
+      }
+      return days;
+    }
+
+    // Display shuffled days
+    function displayShuffledDays() {
+      const daysContainer = document.getElementById('days-container');
+      shuffledDays = shuffleDays([...correctDays]); // Store shuffled days
+
+      // Clear previous days if any
+      daysContainer.innerHTML = '';
+
+      shuffledDays.forEach(day => {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('day');
+        dayElement.textContent = day;
+        dayElement.setAttribute('draggable', 'true');
+        dayElement.setAttribute('ondragstart', 'drag(event)');
+        dayElement.setAttribute('id', day);
+        daysContainer.appendChild(dayElement);
+      });
+    }
+
+    // Handle the drag event
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
+    }
+
+    // Allow the drop into the correct position
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    // Handle the drop event and swap the elements
+    function drop(event) {
+      event.preventDefault();
+      const draggedId = event.dataTransfer.getData("text");
+      const draggedElement = document.getElementById(draggedId);
+      const targetElement = event.target;
+
+      if (targetElement.classList.contains('day') && targetElement !== draggedElement) {
+        // Swap the text content of the elements
+        const temp = targetElement.textContent;
+        targetElement.textContent = draggedElement.textContent;
+        draggedElement.textContent = temp;
+
+        // Swap the id attributes to keep track of correct drag-drop
+        const tempId = targetElement.id;
+        targetElement.id = draggedElement.id;
+        draggedElement.id = tempId;
+      }
+    }
+
+    // Check if the days are in the correct order
+    function checkOrder() {
+      const daysContainer = document.getElementById('days-container');
+      const days = daysContainer.getElementsByClassName('day');
+      let isCorrect = true;
+
+      Array.from(days).forEach((day, index) => {
+        if (day.textContent !== correctDays[index]) {
+          isCorrect = false;
+        }
+      });
+
+      if (isCorrect) {
+        alert('🎉 Congratulations! The days are in correct order!');
+        Array.from(days).forEach(day => {
+          day.classList.add('correct');
+        });
+      } else {
+        alert('❌ Oops! The days are not in correct order. Try again!');
+      }
+    }
+
+    // Reset the game and shuffle the days again
+    function resetGame() {
+      displayShuffledDays(); // Shuffle and display days again
+    }
+
+    // Initialize the game
+    displayShuffledDays();
+  </script>
+</body>
+</html>
